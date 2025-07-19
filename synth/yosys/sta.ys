@@ -1,0 +1,6 @@
+read_liberty sky130hd_tt.lib.gz
+read_verilog netlist.v
+link_design test
+read_sdc constraints.sdc
+report_checks
+exit

@@ -1,0 +1,8 @@
+read_verilog -sv test.sv
+hierarchy -top test; flatten; proc; fsm; opt; memory; opt;
+techmap; opt;
+dfflibmap -liberty sky130hd_tt.lib.gz
+abc -liberty sky130hd_tt.lib.gz
+clean -purge
+write_verilog -noattr netlist.v
+stat -liberty sky130hd_tt.lib.gz
