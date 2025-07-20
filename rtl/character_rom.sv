@@ -12,10 +12,10 @@ module character_rom #(
     output                        char_pixel
 );
     
-    logic [CHAR_HORZ_PX_SIZE - 1:0][CHAR_VERT_PX_SIZE - 1:0] char_pixel_map [2**8 - 1:0];
+    logic [CHAR_HORZ_PX_SIZE - 1:0][CHAR_VERT_PX_SIZE - 1:0] char_bitmap [2**8 - 1:0];
 
-    initial $readmemh ("char_pixel_map.hex", char_pixel_map);
+    initial $readmemh ("char_font_bitmap.hex", char_bitmap);
 
-    assign char_pixel = char_pixel_map[char_code][char_hpos][char_vpos];
+    assign char_pixel = char_bitmap[char_code][char_hpos][char_vpos];
 
 endmodule

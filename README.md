@@ -2,6 +2,10 @@
 
 ## Prerequisites
 
+* `python3` for scripts
+* `make` for running scripts
+* `oss-cad-suite` with Icarus Verilog, Verilator and Yosys
+* Quartus Prime Lite or Vivado or GoWin IDE for synthesis and FPGA programming
 
 ## Installation
 

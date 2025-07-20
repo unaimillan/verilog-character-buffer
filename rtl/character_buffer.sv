@@ -9,6 +9,8 @@ module character_buffer #(
 
               CHAR_HORZ_PX_SIZE = 640 / CHAR_HORZ_CNT,
               CHAR_VERT_PX_SIZE = 480 / CHAR_VERT_CNT,
+
+              CHAR_PX_SCALE     = 1,
               
               PIXEL_HPOS_W      = 10,
               PIXEL_VPOS_W      = 10,
@@ -23,7 +25,8 @@ module character_buffer #(
     input                       char_write_en,
     input  [               7:0] char_symbol,
 
-    input                       cursor_en,
+    input                       cursor_valid,
+    input                       cursor_display_en,
     input  [CHAR_HORZ_W  - 1:0] cursor_hpos,
     input  [CHAR_VERT_W  - 1:0] cursor_vpos,
 
@@ -92,6 +95,8 @@ module character_buffer #(
 
     wire drawing_char_bottom_line = (cur_char_vpix - CHAR_VERT_PX_SIZE) <= 2;
     
-    assign pixel_color = cursor_en ? (drawing_char_bottom_line & cursor_blink_on) : cur_char_pixel;
+    assign pixel_color = cursor_display_en ? 
+        (drawing_char_bottom_line & cursor_blink_on) : 
+        cur_char_pixel;
 
 endmodule

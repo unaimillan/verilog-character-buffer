@@ -71,33 +71,40 @@ module common_top
 
     logic pixel_color;
 
-    character_buffer #(
-        // .CLK_FREQ          ( ),
-        // .CHAR_HORZ_CNT     ( ),
-        // .CHAR_VERT_CNT     ( ),
-        // .CHAR_HORZ_W       ( ),
-        // .CHAR_VERT_W       ( ),
-        // .CHAR_HORZ_PX_SIZE ( ),
-        // .CHAR_VERT_PX_SIZE ( ),
-        // .PIXEL_HPOS_W      ( ),
-        // .PIXEL_VPOS_W      ( ),
-        .CURSOR_BLINK_FREQ ( 1 )
-    ) i_cb (
-        .clk           ( clk ),
-        .rst           ( rst ),
+    // character_buffer #(
+    //     // .CLK_FREQ          ( ),
+    //     // .CHAR_HORZ_CNT     ( ),
+    //     // .CHAR_VERT_CNT     ( ),
+    //     // .CHAR_HORZ_W       ( ),
+    //     // .CHAR_VERT_W       ( ),
+    //     // .CHAR_HORZ_PX_SIZE ( ),
+    //     // .CHAR_VERT_PX_SIZE ( ),
+    //     // .PIXEL_HPOS_W      ( ),
+    //     // .PIXEL_VPOS_W      ( ),
+    //     .CURSOR_BLINK_FREQ ( 1 )
+    // ) i_cb (
+    //     .clk           ( clk ),
+    //     .rst           ( rst ),
 
-        .char_hpos     ( key[0] ? sw : '0 ),
-        .char_vpos     ( key[0] ? '0 : sw ),
-        .char_write_en ( key[1] ),
-        .char_symbol   ( 8'd97 ),
+    //     .char_hpos     ( key[0] ? sw : '0 ),
+    //     .char_vpos     ( key[0] ? '0 : sw ),
+    //     .char_write_en ( key[1] ),
+    //     .char_symbol   ( 8'd97 ),
 
-        .cursor_en     ( '0 ),
-        .cursor_hpos   ( ),
-        .cursor_vpos   ( ),
+    //     .cursor_en     ( '0 ),
+    //     .cursor_hpos   ( ),
+    //     .cursor_vpos   ( ),
 
-        .pixel_hpos    ( x ),
-        .pixel_vpos    ( y ),
-        .pixel_color   ( pixel_color )
+    //     .pixel_hpos    ( x ),
+    //     .pixel_vpos    ( y ),
+    //     .pixel_color   ( pixel_color )
+    // );
+
+    character_rom icr (
+        .char_hpos  ( x ),
+        .char_vpos  ( y ),
+        .char_code  ( 8'd48+sw ),
+        .char_pixel ( pixel_color )
     );
 
     logic [3:0] x4;
@@ -124,37 +131,16 @@ module common_top
         blue_4  = '0;
 
         // This should be removed after we finish with display_on in wrapper
-        if (display_on)
-        begin
+        // if (display_on)
+        // begin
             red_4   = { 4 { pixel_color }};
             green_4 = { 4 { pixel_color }};
             blue_4  = { 4 { pixel_color }};
-        end
+        // end
     end
 
-    `ifdef VERILATOR
-
-        assign red   = w_red'   ( red_4   );
-        assign green = w_green' ( green_4 );
-        assign blue  = w_blue'  ( blue_4  );
-
-    `else
-
-        generate
-            if (w_red > 4 & w_green > 4 & w_blue > 4)
-            begin : wide_rgb
-                assign red   = { red_4   , { w_red   - 4 { 1'b0 } } };
-                assign green = { green_4 , { w_green - 4 { 1'b0 } } };
-                assign blue  = { blue_4  , { w_blue  - 4 { 1'b0 } } };
-            end
-            else
-            begin : narrow_rgb
-                assign red   = w_red'   ( red_4   );
-                assign green = w_green' ( green_4 );
-                assign blue  = w_blue'  ( blue_4  );
-            end
-        endgenerate
-
-    `endif
+    assign red   = w_red'   ( red_4   );
+    assign green = w_green' ( green_4 );
+    assign blue  = w_blue'  ( blue_4  );
 
 endmodule
