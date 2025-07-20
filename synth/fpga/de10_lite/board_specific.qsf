@@ -3,12 +3,13 @@ set_global_assignment -name TOP_LEVEL_ENTITY         board_specific_top
 set_global_assignment -name SDC_FILE ./board_specific.sdc
 
 set_global_assignment -name SEARCH_PATH .
+set_global_assignment -name SEARCH_PATH ../../..
 set_global_assignment -name SEARCH_PATH ../../../rtl
 set_global_assignment -name SEARCH_PATH "../../../include/basics-graphics-music/labs/common"
 
 set_global_assignment -name SYSTEMVERILOG_FILE ../../../rtl/character_buffer.sv
 set_global_assignment -name SYSTEMVERILOG_FILE ../../../rtl/character_rom.sv
-set_global_assignment -name SYSTEMVERILOG_FILE ../../../synth/common_top.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../../../rtl/common_top.sv
 
 set_global_assignment -name SYSTEMVERILOG_FILE ./board_specific_top.sv
 

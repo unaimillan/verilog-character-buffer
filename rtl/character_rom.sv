@@ -14,7 +14,7 @@ module character_rom #(
     
     logic [CHAR_HORZ_PX_SIZE - 1:0][CHAR_VERT_PX_SIZE - 1:0] char_bitmap [2**8 - 1:0];
 
-    initial $readmemh ("char_font_bitmap.hex", char_bitmap);
+    initial $readmemh ("./rtl/char_font_bitmap.hex", char_bitmap);
 
     assign char_pixel = char_bitmap[char_code][char_hpos][char_vpos];
 

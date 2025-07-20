@@ -212,3 +212,5 @@ __marimo__/
 /synth/fpga/**/output_files/
 /synth/fpga/**/*.bak
 /synth/fpga/**/*.qws
+
+/sim/verilator/output_files/
