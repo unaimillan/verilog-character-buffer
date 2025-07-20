@@ -79,14 +79,15 @@ int main(int argc, char *argv[])
 
     uint64_t start_ticks = SDL_GetPerformanceCounter();
     uint64_t frame_count = 0;
+    bool isworking = true;
 
     uint64_t switch_reg = 0;
 
-    while (true)
+    while (isworking)
     {
-        for (int pix_vpos = 0; pix_vpos < V_RES; pix_vpos++)
+        for (int pix_vpos = 0; isworking && pix_vpos < V_RES; pix_vpos++)
         {
-            for (int pix_hpos = 0; pix_hpos < H_RES; pix_hpos++)
+            for (int pix_hpos = 0; isworking && pix_hpos < H_RES; pix_hpos++)
             {
                 mod->x = pix_hpos;
                 mod->y = pix_vpos;
@@ -106,39 +107,41 @@ int main(int argc, char *argv[])
                 p->g = mod->green << SCALE_BRIGHTNESS;
                 p->b = mod->blue << SCALE_BRIGHTNESS;
             }
-        }
-        // printf("Frame rendered\n");
 
-        // update texture once per frame (in blanking)
-        SDL_Event evt;
-        if (SDL_PollEvent(&evt))
-        {
-            if (evt.type == SDL_QUIT)
+            // Handle incoming events
+            SDL_Event evt;
+            if (SDL_PollEvent(&evt))
             {
-                break;
-            }
-            else if (evt.type == SDL_KEYDOWN)
-            {
-                uint32_t key_pressed = evt.key.keysym.scancode;
-                // printf("Key press detected: %d\n", key_pressed);
-
-                if (SDL_SCANCODE_1 <= key_pressed && key_pressed <= SDL_SCANCODE_0)
+                if (evt.type == SDL_QUIT)
                 {
-                    int bit_num = key_pressed - SDL_SCANCODE_1;
-                    switch_reg ^= 1 << bit_num;
+                    isworking = false;
+                }
+                else if (evt.type == SDL_KEYDOWN)
+                {
+                    uint32_t key_pressed = evt.key.keysym.scancode;
+                    // printf("Key press detected: %d\n", key_pressed);
+
+                    if (SDL_SCANCODE_1 <= key_pressed && key_pressed <= SDL_SCANCODE_0)
+                    {
+                        int bit_num = key_pressed - SDL_SCANCODE_1;
+                        switch_reg ^= 1 << bit_num;
+                    }
                 }
             }
+            if (keyb_state[SDL_SCANCODE_Q] || keyb_state[SDL_SCANCODE_ESCAPE])
+            {
+                printf("Exiting\n");
+                isworking = false;
+            }
+
+            // read switches
+            mod->sw = switch_reg;
+
+            mod->key = ((keyb_state[SDL_SCANCODE_Z]) << 1) |
+                       ((keyb_state[SDL_SCANCODE_X]) << 0);
         }
-        // quit when q is pressed
-        if (keyb_state[SDL_SCANCODE_Q])
-            break;
 
-        // read switches
-        mod->sw = switch_reg;
-
-        mod->key = ((keyb_state[SDL_SCANCODE_Z]) << 1) |
-                   ((keyb_state[SDL_SCANCODE_X]) << 0);
-
+        // update texture once per frame (in blanking)
         SDL_UpdateTexture(sdl_texture, NULL, screenbuffer,
                           H_RES * sizeof(Pixel));
         SDL_RenderClear(sdl_renderer);
@@ -146,11 +149,7 @@ int main(int argc, char *argv[])
         SDL_RenderPresent(sdl_renderer);
         frame_count++;
 
-        if (keyb_state[SDL_SCANCODE_ESCAPE])
-        {
-            printf("ESCAPE\n");
-            break;
-        }
+        printf("Frame rendered: %lu\n", frame_count);
     }
 
     // calculate frame rate
