@@ -4,3 +4,6 @@
 [submodule "include/ibmfonts"]
 	path = include/ibmfonts
 	url = https://github.com/farsil/ibmfonts
+[submodule "include/ps2"]
+	path = include/ps2
+	url = https://github.com/freecores/ps2

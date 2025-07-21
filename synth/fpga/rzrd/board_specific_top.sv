@@ -74,7 +74,10 @@ module board_specific_top
     inout                  LCD_RS,
     inout                  LCD_RW,
     inout                  LCD_E,
-    inout  [          7:0] LCD_D
+    inout  [          7:0] LCD_D,
+
+    inout                  PS_CLOCK,
+    inout                  PS_DATA
 );
 
     //------------------------------------------------------------------------
@@ -120,7 +123,7 @@ module board_specific_top
 
     //------------------------------------------------------------------------
 
-    lab_top
+    common_top
     # (
         .clk_mhz       (   clk_mhz       ),
 
@@ -137,7 +140,7 @@ module board_specific_top
         .w_green       (   w_green       ),
         .w_blue        (   w_blue        )
     )
-    i_lab_top
+    i_common_top
     (
         .clk           (   clk           ),
         .slow_clk      (   slow_clk      ),
