@@ -48,6 +48,10 @@ module common_top
     input        [         23:0] mic,
     output       [         15:0] sound,
 
+    input                        ps2_valid,
+    input        [          7:0] ps2_scancode,
+    input        [          7:0] ps2_ascii,
+
     input                        uart_rx,
     output                       uart_tx,
 
@@ -59,8 +63,8 @@ module common_top
     //------------------------------------------------------------------------
 
        assign led        = '0;
-       assign abcdefgh   = '0;
-       assign digit      = '0;
+    // assign abcdefgh   = '0;
+    // assign digit      = '0;
     // assign red        = '0;
     // assign green      = '0;
     // assign blue       = '0;
@@ -100,10 +104,26 @@ module common_top
     //     .pixel_color   ( pixel_color )
     // );
 
+    logic [7:0] ps2_scancode_r;
+    logic [7:0] ps2_ascii_r;
+
+    always_ff @( posedge clk or posedge rst ) begin
+        if (rst)
+        begin
+            ps2_scancode_r <= '0;
+            ps2_ascii_r    <= '0;
+        end
+        else if (ps2_valid & (8'd30 < ps2_ascii) & (ps2_ascii < 8'd130))
+        begin
+            ps2_scancode_r <= ps2_scancode;
+            ps2_ascii_r    <= ps2_ascii;
+        end
+    end
+
     character_rom icr (
         .char_hpos  ( x ),
         .char_vpos  ( y ),
-        .char_code  ( 8'd48+sw ),
+        .char_code  ( ps2_ascii_r ),
         .char_pixel ( pixel_color )
     );
 
@@ -142,5 +162,21 @@ module common_top
     assign red   = w_red'   ( red_4   );
     assign green = w_green' ( green_4 );
     assign blue  = w_blue'  ( blue_4  );
+
+    seven_segment_display
+    # (
+        .w_digit   ( 4   ),
+        .clk_mhz   ( 50  ),
+        .update_hz ( 120 )  // The default of 4 is too low for FIFO lab // Looks like a sane default
+    )
+    i_svn_seg_disp
+    (
+        .clk      ( clk ),
+        .rst      ( rst ),
+        .number   ( ps2_ascii_r ),
+        .dots     ( '0 ),
+        .abcdefgh ( abcdefgh ),
+        .digit    ( digit )
+    );
 
 endmodule

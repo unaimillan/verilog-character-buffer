@@ -114,6 +114,12 @@ module board_specific_top
     wire [         23:0] mic;
     wire [         15:0] sound;
 
+    // PS/2 Keyboard
+
+    wire                 ps2_valid;
+    wire [          7:0] ps2_scancode;
+    wire [          7:0] ps2_ascii;
+
     //------------------------------------------------------------------------
 
     wire slow_clk;
@@ -167,6 +173,10 @@ module board_specific_top
         .mic           (   mic           ),
         .sound         (   sound         ),
 
+        .ps2_valid     (   ps2_press_down ),
+        .ps2_scancode  (   ps2_scancode   ),
+        .ps2_ascii     (   ps2_ascii      ),
+
         `ifdef USE_SDRAM_PINS_AS_GPIO
             .gpio ( PSEUDO_GPIO_USING_SDRAM_PINS )
         `elsif USE_LCD_AS_GPIO
@@ -201,6 +211,29 @@ module board_specific_top
         .hpos        ( x10        ),
         .vpos        ( y10        ),
         .pixel_clk   (            )
+    );
+
+    //------------------------------------------------------------------------
+
+    wire ps2_rx_released;
+    wire ps2_press_down = ps2_valid & (~ ps2_rx_released);
+
+    ps2_keyboard_interface i_ps2 (
+        .clk                      ( clk ),
+        .reset                    ( rst ),
+        .ps2_clk                  ( PS_CLOCK  ),
+        .ps2_data                 ( PS_DATA ),
+        .rx_extended              (  ),
+        .rx_released              ( ps2_rx_released ),
+        .rx_shift_key_on          (  ),
+        .rx_data_ready            ( ps2_valid ), // rx_read_o
+        .rx_read                  ( '1 ), // rx_read_ack_i
+        .rx_scan_code             ( ps2_scancode ), // [7:0]    
+        .rx_ascii                 ( ps2_ascii    ), // [7:0]
+        .tx_data                  (  ), // [7:0]
+        .tx_write                 ( '0 ),
+        .tx_write_ack_o           (  ),
+        .tx_error_no_keyboard_ack (  )
     );
 
     //------------------------------------------------------------------------

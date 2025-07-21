@@ -12,5 +12,7 @@
 
 ## Acknowledgments
 
-Some repository features are inspired by or inherited from [basics-graphics-music](https://github.com/chipdesignschool/basics-graphics-music)
-and [verilog-raycaster](https://github.com/unaimillan/verilog-raycaster)
+Some repository features are inspired by or inherited from the repositories listed below
+* [basics-graphics-music](https://github.com/chipdesignschool/basics-graphics-music)
+* [schoolriscv](https://github.com/zhelnio/schoolRISCV)
+* [verilog-raycaster](https://github.com/unaimillan/verilog-raycaster)
