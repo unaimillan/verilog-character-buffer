@@ -26,7 +26,7 @@ gen:
 # Simulation
 # ------------------------------------------------------------------------------
 
-simulate: clean build run
+simulate: sim-clean build run
 
 build: rtl/common_top.sv
 	verilator ${VFLAGS} -Irtl -Iinclude/basics-graphics-music/labs/common -cc $< --exe sim/verilator/simulate.cpp -o common_top.out \
@@ -37,7 +37,7 @@ build: rtl/common_top.sv
 run:
 	./sim/verilator/output_files/common_top.out
 
-clean:
+sim-clean:
 	rm -rf ./sim/verilator/output_files/
 
 # ------------------------------------------------------------------------------
