@@ -4,6 +4,7 @@
 
 #include <SDL.h>
 #include <stdio.h>
+#include <queue>
 #include <verilated.h>
 
 #include HEADER(vmodule)
@@ -71,8 +72,11 @@ int main(int argc, char *argv[])
     mod->rst = 1;
     mod->clk = 0;
     mod->eval();
-    mod->clk = 1;
-    mod->eval();
+    for (int i = 0; i < 3; i++)
+    {
+        mod->clk = 1;
+        mod->eval();
+    }
     mod->rst = 0;
     mod->clk = 0;
     mod->eval();
@@ -82,6 +86,7 @@ int main(int argc, char *argv[])
     bool isworking = true;
 
     uint64_t switch_reg = 0;
+    std::queue<int32_t> key_q;
 
     while (isworking)
     {
@@ -89,6 +94,12 @@ int main(int argc, char *argv[])
         {
             for (int pix_hpos = 0; isworking && pix_hpos < H_RES; pix_hpos++)
             {
+                if (!key_q.empty())
+                {
+                    mod->ps2_ascii_vld = 1;
+                    mod->ps2_ascii = key_q.front();
+                }
+
                 mod->x = pix_hpos;
                 mod->y = pix_vpos;
 
@@ -97,6 +108,12 @@ int main(int argc, char *argv[])
                 mod->eval();
                 mod->clk = 0;
                 mod->eval();
+
+                if (!key_q.empty())
+                {
+                    mod->ps2_ascii_vld = 0;
+                    key_q.pop();
+                }
 
                 const uint8_t SCALE_BRIGHTNESS = 5;
 
@@ -118,20 +135,29 @@ int main(int argc, char *argv[])
                 }
                 else if (evt.type == SDL_KEYDOWN)
                 {
-                    uint32_t key_pressed = evt.key.keysym.scancode;
-                    // printf("Key press detected: %d\n", key_pressed);
+                    int32_t key_scancode = evt.key.keysym.scancode;
+                    int32_t key_sym = evt.key.keysym.sym;
 
-                    if (SDL_SCANCODE_1 <= key_pressed && key_pressed <= SDL_SCANCODE_0)
+                    printf("Key press detected: scancode %d sym %d ascii %c\n",
+                           key_scancode, key_sym, key_sym);
+
+                    if (SDL_SCANCODE_1 <= key_scancode && key_scancode <= SDL_SCANCODE_0)
                     {
-                        int bit_num = key_pressed - SDL_SCANCODE_1;
+                        int bit_num = key_scancode - SDL_SCANCODE_1;
                         switch_reg ^= 1 << bit_num;
                     }
+                    
+                    if (SDL_SCANCODE_A <= key_scancode && key_scancode <= SDL_SCANCODE_SPACE)
+                    {
+                        key_q.push(key_scancode - SDL_SCANCODE_A + 97);
+                    }
+
+                    if (key_scancode == SDL_SCANCODE_ESCAPE)
+                    {
+                        printf("Exiting\n");
+                        isworking = false;
+                    }
                 }
-            }
-            if (keyb_state[SDL_SCANCODE_Q] || keyb_state[SDL_SCANCODE_ESCAPE])
-            {
-                printf("Exiting\n");
-                isworking = false;
             }
 
             // read switches

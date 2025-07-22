@@ -90,8 +90,8 @@ module common_top
         begin
             if (cursor_hpos == 16'd15)
             begin
-                cursor_hpos <= 1'b0;
-                cursor_vpos <= 1'b1;
+                cursor_hpos <= 16'b0;
+                cursor_vpos <= 16'b1;
             end
             else
             begin
