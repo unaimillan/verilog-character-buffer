@@ -37,7 +37,10 @@ module character_buffer #(
 
     // -------------------------------------------------------------------------
 
-    logic [CHAR_HORZ_W - 1:0][CHAR_VERT_W - 1:0][7:0] char_buffer;
+    logic [CHAR_HORZ_CNT - 1:0][CHAR_VERT_CNT - 1:0][7:0] char_buffer;
+
+    // Debug char_buffer display
+    // initial char_buffer = "abcdefghijklmnopqrstuvwxyz12345678";
 
     always_ff @ (posedge clk)
         if (char_write_en)
@@ -69,11 +72,11 @@ module character_buffer #(
 
     // -------------------------------------------------------------------------
 
-    localparam CURSOR_BLINK_HALF_PERIOD = CLK_FREQ * 1000 * 1000 / CURSOR_BLINK_FREQ / 2;
-    localparam CURSOR_B_HP_W            = $clog2 (CURSOR_BLINK_HALF_PERIOD);
+    localparam CURSOR_BLINK_HALF_PERIOD = CLK_FREQ / CURSOR_BLINK_FREQ / 2;
+    localparam CURSOR_CNT_W            = $clog2 (CURSOR_BLINK_HALF_PERIOD);
 
-    logic [CURSOR_B_HP_W - 1:0] cnt;
-    logic                       cursor_blink_on;
+    logic [CURSOR_CNT_W - 1:0] cnt;
+    logic                      cursor_blink_on;
 
     always_ff @ (posedge clk or posedge rst)
         if (rst)
@@ -83,7 +86,7 @@ module character_buffer #(
         end
         else if (cnt == '0)
         begin
-            cnt             <= CURSOR_B_HP_W' (CURSOR_B_HP_W - 1);
+            cnt             <= CURSOR_CNT_W' (CURSOR_BLINK_HALF_PERIOD - 1);
             cursor_blink_on <= ~ cursor_blink_on;
         end
         else
@@ -93,10 +96,12 @@ module character_buffer #(
     
     // -------------------------------------------------------------------------
 
-    wire drawing_char_bottom_line = (cur_char_vpix - CHAR_VERT_PX_SIZE) <= 2;
+    wire draw_cursor = ( cursor_hpos == cur_char_hpos ) & ( cursor_vpos == cur_char_vpos );
+    // wire drawing_char_bottom_line = (cur_char_vpix - CHAR_VERT_PX_SIZE) <= 2;
     
+    // assign pixel_color = cursor_blink_on;
     assign pixel_color = cursor_display_en ? 
-        (drawing_char_bottom_line & cursor_blink_on) : 
+        ((draw_cursor & cursor_blink_on) ? 1'b1 : cur_char_pixel) : 
         cur_char_pixel;
 
 endmodule

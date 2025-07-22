@@ -7,7 +7,7 @@ set_global_assignment -name SEARCH_PATH .
 set_global_assignment -name SEARCH_PATH ../../..
 set_global_assignment -name SEARCH_PATH ../../../rtl
 set_global_assignment -name SEARCH_PATH "../../../include/basics-graphics-music/labs/common"
-set_global_assignment -name SEARCH_PATH "../../../include/ps2"
+set_global_assignment -name SEARCH_PATH ../../../include/ps2
 
 set_global_assignment -name SYSTEMVERILOG_FILE ../../../rtl/character_buffer.sv
 set_global_assignment -name SYSTEMVERILOG_FILE ../../../rtl/character_rom.sv
@@ -15,7 +15,7 @@ set_global_assignment -name SYSTEMVERILOG_FILE ../../../rtl/common_top.sv
 
 set_global_assignment -name SYSTEMVERILOG_FILE ./board_specific_top.sv
 
-set_global_assignment -name SYSTEMVERILOG_FILE "../../../include/ps2/ps2_keyboard.v"
+set_global_assignment -name SYSTEMVERILOG_FILE ../../../include/ps2/ps2_keyboard.v
 set_global_assignment -name SYSTEMVERILOG_FILE "../../../include/basics-graphics-music/peripherals/hub75e_led_matrix.sv"
 set_global_assignment -name SYSTEMVERILOG_FILE "../../../include/basics-graphics-music/peripherals/tm1638_virtual_switches.sv"
 set_global_assignment -name SYSTEMVERILOG_FILE "../../../include/basics-graphics-music/peripherals/imitate_reset_on_power_up.sv"

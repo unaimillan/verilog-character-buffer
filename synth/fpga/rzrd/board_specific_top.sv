@@ -116,8 +116,9 @@ module board_specific_top
 
     // PS/2 Keyboard
 
-    wire                 ps2_valid;
+    wire                 ps2_scancode_vld;
     wire [          7:0] ps2_scancode;
+    wire                 ps2_ascii_vld;
     wire [          7:0] ps2_ascii;
 
     //------------------------------------------------------------------------
@@ -173,9 +174,11 @@ module board_specific_top
         .mic           (   mic           ),
         .sound         (   sound         ),
 
-        .ps2_valid     (   ps2_press_down ),
-        .ps2_scancode  (   ps2_scancode   ),
-        .ps2_ascii     (   ps2_ascii      ),
+        .ps2_scancode_vld ( ps2_scancode_vld ),
+        .ps2_scancode     ( ps2_scancode     ),
+
+        .ps2_ascii_vld    ( ps2_ascii_vld    ),
+        .ps2_ascii        ( ps2_ascii        ),
 
         `ifdef USE_SDRAM_PINS_AS_GPIO
             .gpio ( PSEUDO_GPIO_USING_SDRAM_PINS )
@@ -215,17 +218,34 @@ module board_specific_top
 
     //------------------------------------------------------------------------
 
+    wire ps2_valid;
+    wire ps2_rx_extended;
     wire ps2_rx_released;
-    wire ps2_press_down = ps2_valid & (~ ps2_rx_released);
+    wire ps2_rx_shift_key_on;
+    wire ps2_press_down;
 
-    ps2_keyboard_interface i_ps2 (
+    always_comb begin
+        ps2_press_down = ps2_valid & (~ ps2_rx_released);
+        ps2_scancode_vld = ps2_valid;
+        ps2_ascii_vld    = ps2_valid;
+
+        if(ps2_ascii == 8'h2e & ps2_scancode != 8'h49)
+            ps2_ascii_vld = 8'd0;
+
+        ps2_scancode_vld &= ps2_press_down;
+        ps2_ascii_vld    &= ps2_press_down;
+    end
+
+    ps2_keyboard_interface # (
+        .TRAP_SHIFT_KEYS_PP ( 1 )
+    ) i_ps2 (
         .clk                      ( clk ),
         .reset                    ( rst ),
         .ps2_clk                  ( PS_CLOCK  ),
         .ps2_data                 ( PS_DATA ),
-        .rx_extended              (  ),
+        .rx_extended              ( ps2_rx_extended ),
         .rx_released              ( ps2_rx_released ),
-        .rx_shift_key_on          (  ),
+        .rx_shift_key_on          ( ps2_rx_shift_key_on ),
         .rx_data_ready            ( ps2_valid ), // rx_read_o
         .rx_read                  ( '1 ), // rx_read_ack_i
         .rx_scan_code             ( ps2_scancode ), // [7:0]    
