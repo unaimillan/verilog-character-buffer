@@ -22,6 +22,21 @@ gen_font:
 gen:
 	scripts/run_scripts.bash
 
+skywater-pdk:
+	git clone https://github.com/google/skywater-pdk
+	git submodule update --init libraries/sky130_fd_sc_hd/latest
+
+install-skywater-pdk: skywater-pdk
+	(	\
+		cd skywater-pdk/ && \
+		. ./env/conda/bin/activate && \
+		conda tos accept && \
+		make timing \
+	)
+	cp "./skywater-pdk/libraries/sky130_fd_sc_hd/latest/timing/sky130_fd_sc_hd__tt_025C_1v80.lib" .
+
+"sky130_fd_sc_hd__tt_025C_1v80.lib": install-skywater-pdk
+
 # ------------------------------------------------------------------------------
 # Simulation
 # ------------------------------------------------------------------------------
@@ -92,3 +107,10 @@ synth:
 #     -o "p;<projectname>.sof" - program (configure) FPGA with <projectname>.sof file
 upload:
 	$(QUARTUS_PGM) --no_banner -c $(CABLE_NAME) -m JTAG -o "p;output_files/$(PROJECT_NAME).sof"
+
+# ------------------------------------------------------------------------------
+# Synthesize with Yosys
+# ------------------------------------------------------------------------------
+
+synth-yosys: sky130_fd_sc_hd__tt_025C_1v80.lib
+	yosys -s ./synth/yosys/synth.ys

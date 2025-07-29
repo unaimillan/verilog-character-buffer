@@ -214,3 +214,6 @@ __marimo__/
 /synth/fpga/**/*.qws
 
 /sim/verilator/output_files/
+
+/skywater-pdk
+/netlist.v
