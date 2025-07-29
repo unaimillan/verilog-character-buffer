@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
     bool isworking = true;
 
     uint64_t switch_reg = 0;
-    std::queue<int32_t> key_q;
+    std::queue<int32_t> scancode_q, ascii_q;
 
     while (isworking)
     {
@@ -94,10 +94,16 @@ int main(int argc, char *argv[])
         {
             for (int pix_hpos = 0; isworking && pix_hpos < H_RES; pix_hpos++)
             {
-                if (!key_q.empty())
+                if (!scancode_q.empty())
+                {
+                    mod->ps2_scancode_vld = 1;
+                    mod->ps2_scancode = scancode_q.front();
+                }
+
+                if (!ascii_q.empty())
                 {
                     mod->ps2_ascii_vld = 1;
-                    mod->ps2_ascii = key_q.front();
+                    mod->ps2_ascii = ascii_q.front();
                 }
 
                 mod->x = pix_hpos;
@@ -109,10 +115,15 @@ int main(int argc, char *argv[])
                 mod->clk = 0;
                 mod->eval();
 
-                if (!key_q.empty())
+                if (!scancode_q.empty())
+                {
+                    mod->ps2_scancode_vld = 0;
+                    scancode_q.pop();
+                }
+                if (!ascii_q.empty())
                 {
                     mod->ps2_ascii_vld = 0;
-                    key_q.pop();
+                    ascii_q.pop();
                 }
 
                 const uint8_t SCALE_BRIGHTNESS = 5;
@@ -146,10 +157,18 @@ int main(int argc, char *argv[])
                         int bit_num = key_scancode - SDL_SCANCODE_1;
                         switch_reg ^= 1 << bit_num;
                     }
-                    
-                    if (SDL_SCANCODE_A <= key_scancode && key_scancode <= SDL_SCANCODE_SPACE)
+
+                    if ((SDLK_SPACE <= key_sym && key_sym <= SDLK_z))
                     {
-                        key_q.push(key_scancode - SDL_SCANCODE_A + 97);
+                        // printf("Push symbol\n");
+                        ascii_q.push(key_sym);
+                    }
+
+                    if ((SDL_SCANCODE_RIGHT <= key_scancode && key_scancode <= SDL_SCANCODE_UP))
+                    {
+                        // printf("Push scancode\n");
+                        constexpr int32_t scancode_sdl_to_ps[4] = { 0x74, 0x6b, 0x75, 0x72 };
+                        scancode_q.push(scancode_sdl_to_ps[key_scancode - SDL_SCANCODE_RIGHT]);
                     }
 
                     if (key_scancode == SDL_SCANCODE_ESCAPE)

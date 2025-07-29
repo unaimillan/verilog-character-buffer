@@ -79,6 +79,7 @@ quartus:
 #                                               of <projectname> project
 synth:
 	$(QUARTUS_SH) --no_banner --flow compile $(PROJECT_NAME)
+	cat "$(PROJECT_DIR)/output_files/$(PROJECT_NAME).fit.summary"
 	make upload
 
 # make load

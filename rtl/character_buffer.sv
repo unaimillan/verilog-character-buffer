@@ -37,14 +37,19 @@ module character_buffer #(
 
     // -------------------------------------------------------------------------
 
-    logic [CHAR_HORZ_CNT - 1:0][CHAR_VERT_CNT - 1:0][7:0] char_buffer;
+    localparam CHAR_BUFF_SIZE = CHAR_HORZ_CNT * CHAR_VERT_CNT;
+    localparam CHAR_BUFF_ADDR_W = $clog2(CHAR_BUFF_SIZE);
+
+    logic [7:0] char_buffer [CHAR_BUFF_SIZE - 1:0];
+
+    wire [CHAR_BUFF_ADDR_W - 1:0] char_write_addr = char_hpos * CHAR_VERT_CNT + char_vpos;
 
     // Debug char_buffer display
     // initial char_buffer = "abcdefghijklmnopqrstuvwxyz12345678";
 
     always_ff @ (posedge clk)
         if (char_write_en)
-            char_buffer[char_hpos][char_vpos] <= char_symbol;
+            char_buffer[char_write_addr] <= char_symbol;
 
     // -------------------------------------------------------------------------
 
@@ -58,7 +63,9 @@ module character_buffer #(
     assign cur_char_hpos   = pixel_hpos / CHAR_HORZ_PX_SIZE;
     assign cur_char_vpos   = pixel_vpos / CHAR_VERT_PX_SIZE;
 
-    assign cur_char_symbol = char_buffer[cur_char_hpos][cur_char_vpos];
+    wire [CHAR_BUFF_ADDR_W - 1:0] char_read_addr = cur_char_hpos * CHAR_VERT_CNT + cur_char_vpos;
+
+    assign cur_char_symbol = char_buffer[char_read_addr];
 
     assign cur_char_hpix   = pixel_hpos % CHAR_HORZ_PX_SIZE;
     assign cur_char_vpix   = pixel_vpos % CHAR_VERT_PX_SIZE;
