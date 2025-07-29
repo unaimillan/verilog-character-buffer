@@ -115,8 +115,8 @@ module common_top
 
     character_buffer #(
         // .CLK_FREQ          ( ),
-        // .CHAR_HORZ_CNT     ( 80 ),
-        // .CHAR_VERT_CNT     ( 25 ),
+        .CHAR_HORZ_CNT     ( 80 ),
+        .CHAR_VERT_CNT     ( 25 ),
         // .CHAR_HORZ_W       ( ),
         // .CHAR_VERT_W       ( ),
         // .CHAR_HORZ_PX_SIZE ( ),

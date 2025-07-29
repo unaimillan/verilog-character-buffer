@@ -65,10 +65,14 @@ module character_buffer #(
 
     wire [CHAR_BUFF_ADDR_W - 1:0] char_read_addr = cur_char_hpos * CHAR_VERT_CNT + cur_char_vpos;
 
-    assign cur_char_symbol = char_buffer[char_read_addr];
+    always_ff @ (posedge clk or posedge rst)
+        if (rst)
+            cur_char_symbol <= '0;
+        else
+            cur_char_symbol <= char_buffer[char_read_addr];
 
-    assign cur_char_hpix   = pixel_hpos % CHAR_HORZ_PX_SIZE;
-    assign cur_char_vpix   = pixel_vpos % CHAR_VERT_PX_SIZE;
+    assign cur_char_hpix = (pixel_hpos % CHAR_HORZ_PX_SIZE) *  8 / CHAR_HORZ_PX_SIZE;
+    assign cur_char_vpix = (pixel_vpos % CHAR_VERT_PX_SIZE) * 16 / CHAR_VERT_PX_SIZE;
 
     character_rom i_char_rom (
         .char_code  ( cur_char_symbol ),
